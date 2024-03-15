@@ -1,9 +1,25 @@
 <template>
 
-  <router-view/>
+  <div id="app">
   
-</template>
-
-<style>
-
-</style>
+    <router-view/>
+  
+  </div>  
+  
+  </template>
+  
+  <script>
+  
+  
+  export default {
+    name: 'App',
+    components: {
+         
+    },
+  }
+  </script>
+  
+  <style>
+  
+  </style>
+  

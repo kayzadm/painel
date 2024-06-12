@@ -1,5 +1,5 @@
 <template>
-    <div id="response" class="mensagem-container">
+    <div id="response">
         <p>  {{ msg }} </p>
     </div>
 </template>
@@ -25,8 +25,18 @@ export default {
     position: absolute;
     top: 0;
     margin-top: 7px;
-    width: 90%;
+    width: 80%;
     color: #DDD;
+}
+
+.mensagem-container {
+    color: #0e40d6;
+    background-color: #CCE5FF;
+    border: 2px solid #B8DAFF;
+    border-radius: 5px;
+    padding: 10px;
+    max-width: 400px;
+    margin: 30px auto;
 }
 
 </style>

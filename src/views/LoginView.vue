@@ -89,7 +89,7 @@ export default {
           $("#loginBtn").removeAttr("disabled");
 
           if (!response.errors && !response.message) {
-            window.location.replace('');
+            this.$router.push({ name: 'Home' });
             this.setTokenCookie(response.token);
           } else {
             this.handleErrors(response);
@@ -120,9 +120,8 @@ export default {
         });
       }
       this.msg = errorMsg;
-
       setTimeout(() => {
-        this.msg = null;
+        location.reload(true);
       }, 3000);
     }
   },
@@ -145,4 +144,5 @@ export default {
   }
 };
 </script>
-<style></style>
+<style>
+</style>

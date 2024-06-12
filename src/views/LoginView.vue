@@ -1,133 +1,148 @@
 <template>
-    
-    <LoginTemplate>
-
-        <template v-slot:menu>
-
-            <br>
-            
+  <LoginTemplate>
+    <template v-slot:menu>
+      <br/>
+      <div class="contentArea">
+        <div class="login">
+          <div class="login-text">
+            <span>Seja Bem-vindo</span>
+            <span>a Phd do Brasil!</span>
             <Mensagens :msg="msg" v-show="msg" />
-
-             <CardMenu>
- 
-                <div class="row">
-                    <div class="col s12">
-                        <div class="card">
-                            <div class="card-image">
-                                
-                            </div>
-                            <div class="card-title">
-                                
-                            </div>
-                            <div class="card-content">
-                                
-                                <img id="logo_phd" :src="require('@/assets/logo.png')" alt="Logo">
-                            
-                                <span v-if="!cadastro" class="mb2">
-                                    <input type="text" name="email" id="" placeholder="E-mail" v-model="email">
-                                    <input type="password" name="password" id="" placeholder="Senha" v-model="password">
-                                    <button class="waves-effect waves-light btn" v-on:click="login()">Entrar</button> &nbsp; 
-                                    <router-link  class="btn red" to="/cadastro">Cadastre-se</router-link>
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
- 
- 
-             </CardMenu>
- 
-         </template>
-
-    
-        <template v-slot:principal>
-            
-            <br><br>
-
-                <div class="row">
-                    <div class="col s12 ">
-                    <div class="card">
-                        <div class="card-image">
-                        <img src="https://phddobrasil.com.br/wp-content/uploads/2023/07/BANNER-SITE-1.jpg">
-                        <span class="card-title">Card Title</span>
-                        <a class="btn-floating halfway-fab waves-effect waves-light"><i class="material-icons">add</i></a>
-                        </div>
-                        <div class="card-content">
-                        <p>I am a very simple card. I am good at containing small bits of information. I am convenient because I require little markup to use effectively.</p>
-                        </div>
-                    </div>
-                    </div>
-                </div>
-
-
-        </template>
-        
-
-    </LoginTemplate>
-
+          </div>
+          <div class="login-area">
+            <form id="form" @submit.prevent="login">
+              <label for="email">Email</label><br />
+              <input type="text" class="login-input" v-model="email" id="email" placeholder="Email"
+                name="email" /><br />
+              <label for="senha">Senha</label><br />
+              <input type="password" class="login-input" v-model="senha" id="password" placeholder="Senha"
+                name="password" />
+              <div class="button-form">
+                <button type="submit" class="loginBtn" id="loginBtn">Login</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </template>
+  </LoginTemplate>
 </template>
 
 <script>
-
-import LoginTemplate from '@/views/templates/LoginTemplate.vue'
-import Mensagens from '@/components/Mensagens'
-import axios from 'axios';
+import LoginTemplate from "@/views/templates/LoginTemplate.vue";
+import Mensagens from "@/components/Mensagens";
+import $ from "jquery";
 
 export default {
-    name: 'Login',
-    props: [],
-    components: {
-        LoginTemplate,
-        Mensagens,
-
+  name: "Login",
+  components: {
+    Mensagens,
+    LoginTemplate,
+  },
+  data() {
+    return {
+      msg: null,
+      email: "",
+      senha: "",
+    };
+  },
+  methods: {
+    setTokenCookie(token) {
+      const d = new Date();
+      d.setTime(d.getTime() + (7 * 24 * 60 * 60 * 1000));
+      const expires = "expires=" + d.toUTCString();
+      document.cookie = "token=" + token + ";" + expires + ";path=/";
     },
-    data() {
-        return {
-            msg: null,
-            email: null,
-            senha: null,
+    getTokenCookie() {
+      const name = "token=";
+      const decodedCookie = decodeURIComponent(document.cookie);
+      const ca = decodedCookie.split(';');
+      for (let i = 0; i < ca.length; i++) {
+        let c = ca[i];
+        while (c.charAt(0) === ' ') {
+          c = c.substring(1);
         }
+        if (c.indexOf(name) === 0) {
+          return c.substring(name.length, c.length);
+        }
+      }
+      return "";
     },
-    methods: {
-        login() {
-            const data = {
-                email: this.email,
-                password: this.senha
-            };
+    login() {
+      const data = {
+        email: this.email,
+        password: this.senha
+      };
 
-            const headers = {
-                'Content-Type': 'application/json',
-                // Adicione quaisquer outros cabeçalhos necessários aqui
-            };
+      $.ajax({
+        type: 'POST',
+        url: 'http://192.168.10.80/api/auth',
+        data: JSON.stringify(data),
+        contentType: 'application/json',
+        dataType: 'json',
+        beforeSend: () => {
+          this.msg = '';
+          $("#loginBtn").val('validando...');
+        },
+        success: (response) => {
+          $("#loginBtn").val('entrar');
+          $("#loginBtn").removeAttr("disabled");
 
-            axios.post('http://localhost:8000/api/login', data, { 
-                
-                
-                headers: {
-                    'Content-Type': 'application/json',
-                }, 
-                
-                withCredentials: true })
-
-                .then(response => {
-                    console.log(response.data); // Se a resposta contiver dados
-                })
-                .catch(error => {
-                    console.error(error);
-                    this.msg = 'Ocorreu um erro durante o login. Por favor, tente novamente.';
-                });
+          if (!response.errors && !response.message) {
+            window.location.replace('');
+            this.setTokenCookie(response.token);
+          } else {
+            this.handleErrors(response);
+          }
+        },
+        error: () => {
+          alert('Erro ao enviar formulário, por favor contate nosso suporte: (11)94952-2579 E-mail: console.tech@outlook.com');
+          $("#loginBtn").val('entrar');
+          $("#loginBtn").removeAttr("disabled");
         }
-}
+      });
+    },
+    handleErrors(response) {
+      let errorMsg = '';
 
-}
+      if (typeof response.message === 'string') {
+        errorMsg += response.message
+      } else if (Array.isArray(response.message)) {
+        response.message.forEach((msg) => {
+          errorMsg += msg;
+        });
+      }
+      if (response.errors) {
+        Object.values(response.errors).forEach((errArray) => {
+          errArray.forEach((err) => {
+            errorMsg += err;
+          });
+        });
+      }
+      this.msg = errorMsg;
+
+      setTimeout(() => {
+        this.msg = null;
+      }, 3000);
+    }
+  },
+  mounted() {
+    const token = this.getTokenCookie();
+    if (token) {
+      $.ajax({
+        type: 'GET',
+        url: 'http://192.168.10.80/api/user',
+        headers: { 'Authorization': 'Bearer ' + token },
+        success: (response) => {
+          if (response.active == 0) {
+            alert('Ops! Sua conta está desativada. Entre em contato conosco para ativar');
+          } else {
+            this.$router.push({ name: 'Home' });
+          }
+        }
+      });
+    }
+  }
+};
 </script>
-
-<style>
-
-#logo_phd {
-    
-    width: 150px;
-
-}
-
-</style>
+<style></style>

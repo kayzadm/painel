@@ -14,15 +14,19 @@ export default {
 </script>
 
 <style scoped>
-
-.mensagem-container {
-    color: #0e40d6;
-    background-color: #CCE5FF;
-    border: 2px solid #B8DAFF;
+#response {
+    font-size: 13px;
+    flex-direction: column;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     border-radius: 5px;
-    padding: 10px;
-    max-width: 400px;
-    margin: 30px auto;
+    background-color: rgb(255, 0, 0, 0.6);
+    position: absolute;
+    top: 0;
+    margin-top: 7px;
+    width: 90%;
+    color: #DDD;
 }
 
 </style>

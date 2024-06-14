@@ -5,7 +5,7 @@
       <ul class="navbar-nav mr-3">
         <li>
           <a href="#" data-toggle="sidebar" class="nav-link nav-link-lg collapse-btn">
-            <FeatherIcon icon="align-justify" size="25"/></a>
+            <FeatherIcon icon="menu" size="25"/></a>
         </li>
       </ul>
     </div>
@@ -23,7 +23,7 @@
             </a> -->
           <div class="dropdown-divider"></div>
           <a class="dropdown-item has-icon text-danger" @click="logout" style="cursor: pointer">
-            Logout
+            <FeatherIcon icon="log-out" size="20"/> logout
           </a>
         </div>
       </li>
@@ -39,7 +39,7 @@
       <ul class="sidebar-menu">
         <li class="active">
           <a class="nav-link" href="">
-            <FeatherIcon icon="monitor" size="20" style="margin-top: 3px" />
+            <FeatherIcon icon="sliders" size="20" style="margin-top: 3px" />
             <span>Painel Adiministrativo</span>
           </a>
         </li>

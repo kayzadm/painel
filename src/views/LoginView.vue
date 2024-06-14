@@ -1,7 +1,7 @@
 <template>
   <LoginTemplate>
     <template v-slot:menu>
-      <br/>
+      <br />
       <div class="contentArea">
         <div class="login">
           <div class="login-text">
@@ -70,7 +70,7 @@ export default {
     },
     login() {
       const data = {
-        email: this.email,
+        username: this.email,
         password: this.senha
       };
 
@@ -80,6 +80,13 @@ export default {
         data: JSON.stringify(data),
         contentType: 'application/json',
         dataType: 'json',
+        processData: false,
+        headers: {
+          'X-Requested-With': 'XMLHttpRequest',
+        },
+        xhrFields: {
+          withCredentials: true 
+        },
         beforeSend: () => {
           this.msg = '';
           $("#loginBtn").val('validando...');
@@ -90,7 +97,7 @@ export default {
 
           if (!response.errors && !response.message) {
             this.$router.push({ name: 'Home' });
-            this.setTokenCookie(response.token);
+            console.log(response)
           } else {
             this.handleErrors(response);
           }
@@ -144,5 +151,4 @@ export default {
   }
 };
 </script>
-<style>
-</style>
+<style></style>

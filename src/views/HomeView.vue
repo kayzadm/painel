@@ -3,7 +3,7 @@
     <div id="app">
       <div class="main-wrapper main-wrapper-1">
         <MensagensHome :msg="errorMsg" v-show="errorMsg" />
-        <Navbar/>
+        <Navbar />
         <div class="main-content">
           <div class="section">
             <div class="section-body">
@@ -34,7 +34,7 @@
                                   <div class="form-group">
                                     <label>Escolha uma Categoria</label>
                                     <select class="form-control" v-model="selectForm" @change="handleCategoryChange"
-                                      :disabled="disabledCategory">
+                                      :disabled="disabledCategory" id="categorySelect">
                                       <option :value=0>Adicionar uma categoria</option>
                                       <option v-for="categoria in categorias" :key="categoria.id" :value="categoria.id">
                                         {{ categoria.name }}</option>
@@ -63,8 +63,8 @@
                                 <div class="card-body" id="cursoForm">
                                   <div class="form-group">
                                     <label>Escolha o Curso</label>
-                                    <select class="form-control" v-model="selectedCourse" id="cursoFormSelect"
-                                      :disabled="!isCategorySelected">
+                                    <select class="form-control cursoFormSelect inputCourse" v-model="selectedCourse"
+                                      id="cursoFormSelect" :disabled="!isCategorySelected">
                                       <option :value=0>adicionar um curso</option>
                                       <option v-for="curso in filteredCourses" :key="curso.id" :value="curso.id">
                                         {{ curso.name }}
@@ -80,8 +80,8 @@
                                   <div class="form-group">
                                     <label>Descrição do curso</label>
                                     <textarea class="form-control inputCourse" id="courseDescription"
-                                      @input="updateCharCount('courseDescription')" v-model="descriptionCourse"
-                                      :disabled="isCursoSelected"></textarea>
+                                      @input="updateCharCount('descriptionCourse')" v-model="descriptionCourse"
+                                      maxlength="255" :disabled="isCursoSelected"></textarea>
                                     <p>{{ charCourse }}/{{ maxLengthCourse }}</p>
                                   </div>
                                   <div class="form-group">
@@ -122,8 +122,8 @@
                                   <div class="form-group">
                                     <label>Descrição da Aula</label>
                                     <textarea class="form-control inputLessons" id="" name="informationLessons"
-                                      @input="updateCharCount('informationLessons')" v-model="lessonsInformation"
-                                      :disabled="disabledLessons" required></textarea>
+                                      maxlength="2000" @input="updateCharCount('informationLessons')"
+                                      v-model="lessonsInformation" :disabled="disabledLessons" required></textarea>
                                     <p>{{ charLessons }}/{{ maxLengthLessons }}</p>
                                   </div>
                                   <div class="form-group">
@@ -199,7 +199,7 @@
                                   <div class="form-group">
                                     <label>Descrição do curso</label>
                                     <textarea class="form-control inputCourseEdit" v-model="descriptionCourseEdit"
-                                      @input="updateCharCount('courseDescriptionEdit')"
+                                      maxlength="255" @input="updateCharCount('descriptionCourseEdit')"
                                       :disabled="inputCourseEdit"></textarea>
                                     <p>{{ charCourseEdit }}/{{ maxLengthCourseEdit }}</p>
                                   </div>
@@ -253,7 +253,7 @@
                                   <div class="form-group">
                                     <label>Descrição da Aula</label>
                                     <textarea class="form-control inputLessonsEdit" id="lessonsInformationEdit"
-                                      @input="updateCharCount('lessonsInformationEdit')"
+                                      maxlength="2000" @input="updateCharCount('informationLessonsEdit')"
                                       v-model="informationLessonsEdit" :disabled="disabledLessonsEdit"></textarea>
                                     <p>{{ charLessonsEdit }}/{{ maxLengthLessonsEdit }}</p>
                                   </div>
@@ -426,16 +426,16 @@ export default {
     this.checkUserStatus();
   },
   watch: {
-    courseDescription(newVal) {
+    descriptionCourse(newVal) {
       this.charCourse = newVal.length;
     },
     lessonsInformation(newVal) {
       this.charLessons = newVal.length;
     },
-    courseDescriptionEdit(newVal) {
+    descriptionCourseEdit(newVal) {
       this.charCourseEdit = newVal.length;
     },
-    lessonsInformationEdit(newVal) {
+    informationLessonsEdit(newVal) {
       this.charLessonsEdit = newVal.length;
     }
   },
@@ -446,47 +446,51 @@ export default {
       if (parts.length === 2) return parts.pop().split(';').shift();
     },
     checkUserStatus() {
-      const token = this.getCookie('token')
+      const token = this.getCookie('token');
+      console.log(token)
       if (token) {
         axios.get(`${apiUrl}/categories`, {
           headers: {
             'Authorization': 'Bearer ' + token
-          }
+          },
+          withCredentials: true 
         })
-        .then(response => {
-          if (response.data.active === 0) {
-            this.$router.push({ name: 'Login' });
-          }
-        })
-        .catch(error => {
-          console.error('Erro ao verificar o status do usuário:', error);
-        });
-      }else {
-        this.$router.push({ name: 'Login' });
+        
+          .then(response => {
+            if (response.data.active === 0) {
+              // this.$router.push({ name: 'Login' });
+            }
+          })
+          .catch(error => {
+            console.error('Erro ao verificar o status do usuário:', error);
+          });
+      } else {
+        // this.$router.push({ name: 'Login' });
       }
     },
     updateCharCount(field) {
-      if (field === 'courseDescription') {
-        if (this.courseDescription.length > this.maxLengthCourse) {
-          this.courseDescription = this.courseDescription.substring(0, this.maxLengthCourse);
+      if (field === 'descriptionCourse') {
+        if (this.descriptionCourse.length > this.maxLengthCourse) {
+          this.descriptionCourse = this.descriptionCourse.substring(0, this.maxLengthCourse);
         }
       } else if (field === 'lessonsInformation') {
         if (this.lessonsInformation.length > this.maxLengthLessons) {
           this.lessonsInformation = this.lessonsInformation.substring(0, this.maxLengthLessons);
         }
-      } else if (field === 'courseDescriptionEdit') {
-        if (this.courseDescriptionEdit.length > this.maxLengthCourseEdit) {
-          this.courseDescriptionEdit = this.courseDescriptionEdit.substring(0, this.maxLengthCourseEdit);
+      } else if (field === 'descriptionCourseEdit') {
+        if (this.descriptionCourseEdit.length > this.maxLengthCourseEdit) {
+          this.descriptionCourseEdit = this.descriptionCourseEdit.substring(0, this.maxLengthCourseEdit);
         }
-      } else if (field === 'lessonsInformationEdit') {
-        if (this.lessonsInformationEdit.length > this.maxLengthLessonsEdit) {
-          this.lessonsInformationEdit = this.lessonsInformationEdit.substring(0, this.maxLengthLessonsEdit);
+      } else if (field === 'informationLessonsEdit') {
+        if (this.informationLessonsEdit.length > this.maxLengthLessonsEdit) {
+          this.informationLessonsEdit = this.informationLessonsEdit.substring(0, this.maxLengthLessonsEdit);
         }
       }
     },
     async submitCategory() {
       try {
-        this.disabledCategory = true;
+        document.getElementById('CategoryName').disabled = true
+        document.getElementById('categorySelect').disabled = true
         const token = this.getCookie('token'); // supondo que você tem um método para obter o token do cookie
         const data = {
           name: this.categoryName,
@@ -503,7 +507,8 @@ export default {
 
             this.errorMsg += `${field}: ${messages.join(', ')}\n`;
           }
-
+          document.getElementById('CategoryName').disabled = false
+          document.getElementById('categorySelect').disabled = false
           setTimeout(() => {
             this.errorMsg = '';
           }, 5000);
@@ -514,7 +519,8 @@ export default {
       } catch (error) {
         console.error('Erro ao enviar POST:', error);
       } finally {
-        this.disabledCategory = false;
+        document.getElementById('CategoryName').disabled = false
+        document.getElementById('categorySelect').disabled = false
       }
     },
     handleFileChange(event) {
@@ -522,10 +528,12 @@ export default {
     },
     async submitButtonCourses() {
       const token = this.getCookie('token');
-
       try {
-        this.isCategorySelected = true,
-          this.isCursoSelected = true;
+        document.getElementById('categorySelect').disabled = true
+        const inputsCourse = document.querySelectorAll('.inputCourse');
+        inputsCourse.forEach(inputCourses => {
+          inputCourses.disabled = true;
+        });
         const formData = new FormData();
         formData.append('category_id', this.selectForm);
         formData.append('name', this.nameCourse);
@@ -542,12 +550,14 @@ export default {
         if (response.data.errors) {
 
           this.msg = '';
-          this.msgType = 'danger';
           for (const [field, messages] of Object.entries(response.data.errors)) {
 
             this.errorMsg += `${field}: ${messages.join(', ')}\n`;
           }
-
+          document.getElementById('categorySelect').disabled = false
+          inputsCourse.forEach(inputCourses => {
+            inputCourses.disabled = false;
+          });
           setTimeout(() => {
             this.errorMsg = '';
           }, 5000);
@@ -559,8 +569,11 @@ export default {
         console.error('Erro ao criar curso:', error);
         // Lógica para lidar com o erro
       } finally {
-        this.isCategorySelected = false,
-          this.isCursoSelected = false;
+        document.getElementById('categorySelect').disabled = false
+        const inputsCourse = document.querySelectorAll('.inputCourse');
+        inputsCourse.forEach(inputCourses => {
+          inputCourses.disabled = false;
+        });
       }
     },
 
@@ -571,8 +584,11 @@ export default {
       const token = this.getCookie('token');
 
       try {
-        this.isCategorySelected = true,
-          this.disabledLessons = true;
+        document.getElementById('#cursoFormSelect').disabled = true
+        const inputsLessons = document.querySelectorAll('.inputLessons')
+        inputsLessons.forEach(input => {
+          input.disabled = true;
+        });
         const formData = new FormData();
         formData.append('course_id', this.selectedCourse);
         formData.append('name', this.nameLessons);
@@ -590,12 +606,14 @@ export default {
         if (response.data.errors) {
 
           this.msg = '';
-          this.msgType = 'danger';
           for (const [field, messages] of Object.entries(response.data.errors)) {
 
             this.errorMsg += `${field}: ${messages.join(', ')}\n`;
           }
-
+          document.getElementById('cursoFormSelect').disabled = false
+          inputsLessons.forEach(input => {
+            input.disabled = false;
+          });
           setTimeout(() => {
             this.errorMsg = '';
           }, 5000);
@@ -607,8 +625,11 @@ export default {
         console.error('Erro ao criar curso:', error);
         // Lógica para lidar com o erro
       } finally {
-        this.isCategorySelected = false,
-          this.disabledLessons = false;
+        document.getElementById('cursoFormSelect').disabled = false
+        const inputsLessons = document.querySelectorAll('.inputLessons')
+        inputsLessons.forEach(input => {
+          input.disabled = false;
+        });
       }
     },
     async submitButtonCategoriesEdit() {
@@ -625,7 +646,6 @@ export default {
         if (response.data.errors) {
 
           this.errorMsg = '';
-          this.msgType = 'danger';
           for (const [field, messages] of Object.entries(response.data.errors)) {
 
             this.errorMsg += `${field}: ${messages.join(', ')}\n`;
@@ -664,7 +684,6 @@ export default {
         if (response.data.errors) {
 
           this.msg = '';
-          this.msgType = 'danger';
           for (const [field, messages] of Object.entries(response.data.errors)) {
 
             this.errorMsg += `${field}: ${messages.join(', ')}\n`;
@@ -705,7 +724,6 @@ export default {
         if (response.data.errors) {
 
           this.msg = '';
-          this.msgType = 'danger';
           for (const [field, messages] of Object.entries(response.data.errors)) {
 
             this.errorMsg += `${field}: ${messages.join(', ')}\n`;

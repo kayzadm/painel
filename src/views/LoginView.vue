@@ -85,7 +85,7 @@ export default {
           'X-Requested-With': 'XMLHttpRequest',
         },
         xhrFields: {
-          withCredentials: true 
+          withCredentials: true
         },
         beforeSend: () => {
           this.msg = '';
@@ -94,10 +94,9 @@ export default {
         success: (response) => {
           $("#loginBtn").val('entrar');
           $("#loginBtn").removeAttr("disabled");
-
           if (!response.errors && !response.message) {
+            this.setTokenCookie(response.token)
             this.$router.push({ name: 'Home' });
-            console.log(response)
           } else {
             this.handleErrors(response);
           }
@@ -128,7 +127,7 @@ export default {
       }
       this.msg = errorMsg;
       setTimeout(() => {
-        location.reload(true);
+        this.msg = '';
       }, 3000);
     }
   },

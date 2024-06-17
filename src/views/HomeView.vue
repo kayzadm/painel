@@ -2,7 +2,7 @@
   <AppTemplate>
     <div id="app">
       <div class="main-wrapper main-wrapper-1">
-        <MensagensHome :msg="errorMsg" v-show="errorMsg" />
+        <MensagensHome :msg="msg" v-show="msg" :msgType="msgType" />
         <Navbar />
         <div class="main-content">
           <div class="section">
@@ -128,7 +128,7 @@
                                   </div>
                                   <div class="form-group">
                                     <label>Video da Aula</label>
-                                    <input type="file" class="form-control inputLessons" required
+                                    <input type="file" class="form-control inputLessons" id="lessonsFile" required
                                       @change="fileLessonsChange" :disabled="disabledLessons" />
                                   </div>
                                 </div>
@@ -153,7 +153,8 @@
                                   <div class="form-group">
                                     <label>Escolha uma Categoria</label>
                                     <select class="form-control" v-model="selectFormEdit"
-                                      @change="handleCategoryChangeEdit" :disabled="disabledSelectCategoryEdit">
+                                      @change="handleCategoryChangeEdit" :disabled="disabledSelectCategoryEdit"
+                                      id="categorySelectEdit">
                                       <option :value=0>Editar uma categoria</option>
                                       <option v-for="categoriaEdit in categoriasEdit" :key="categoriaEdit.id"
                                         :value="categoriaEdit.id">
@@ -164,7 +165,7 @@
                                   <div class="form-group">
                                     <label>Nome da Categoria</label>
                                     <input type="text" maxlength="35" class="form-control inputCategoryEdit"
-                                      v-model="categoryNameEdit" :disabled="disabledCategoryEdit">
+                                      v-model="categoryNameEdit" :disabled="disabledCategoryEdit" id="CategoryNameEdit">
                                   </div>
                                 </div>
                                 <div class="card-footer text-right">
@@ -182,7 +183,8 @@
                                   <div class="form-group">
                                     <label>Escolha o Curso</label>
                                     <select class="form-control" v-model="selectedCourseEdit"
-                                      @change="handleCourseChangeEdit" :disabled="disabledSelectCourseEdit">
+                                      @change="handleCourseChangeEdit" :disabled="disabledSelectCourseEdit"
+                                      id="selectedCourseEdit">
                                       <option :value=0>Editar um curso</option>
                                       <option v-for="courseEdit in filteredCoursesEdit" :key="courseEdit.id"
                                         :value="courseEdit.id">
@@ -231,8 +233,9 @@
                                 <div class="card-body">
                                   <div class="form-group">
                                     <label>Escolha uma Aula</label>
-                                    <select class="form-control" v-model="lessonFormSelectEdit"
-                                      @change="handlLessonsChangeEdit" :disabled="lessonsEditSelect">
+                                    <select class="form-control" id="lessonFormSelectEdit"
+                                      v-model="lessonFormSelectEdit" @change="handlLessonsChangeEdit"
+                                      :disabled="lessonsEditSelect">
                                       <option :value=0>Editar uma aula</option>
                                       <option v-for="lessonEdit in filteredLessonsEdit" :key="lessonEdit.id"
                                         :value="lessonEdit.id">
@@ -314,8 +317,8 @@ export default {
       categoryName: '',
       isActive: true,
       submitting: false,
-      errorMsg: null,
       msg: null,
+      msgType: '',
       success: false,
       lessonsInformation: null,
       nameLessons: null,
@@ -447,25 +450,31 @@ export default {
     },
     checkUserStatus() {
       const token = this.getCookie('token');
-      console.log(token)
       if (token) {
-        axios.get(`${apiUrl}/categories`, {
+        axios.get(`${apiUrl}/user`, {
           headers: {
             'Authorization': 'Bearer ' + token
           },
-          withCredentials: true 
+          withCredentials: true
         })
-        
+
           .then(response => {
-            if (response.data.active === 0) {
-              // this.$router.push({ name: 'Login' });
+            if (!response.data) {
+              this.$router.push({ name: 'Login' });
+              this.deleteTokenCookie()
+            } else if (response.data.active === 0) {
+              this.$router.push({ name: 'Login' });
+              this.deleteTokenCookie()
             }
           })
           .catch(error => {
             console.error('Erro ao verificar o status do usuário:', error);
+            this.$router.push({ name: 'Login' });
           });
       } else {
-        // this.$router.push({ name: 'Login' });
+        this.$router.push({ name: 'Login' });
+        this.deleteTokenCookie()
+
       }
     },
     updateCharCount(field) {
@@ -491,7 +500,7 @@ export default {
       try {
         document.getElementById('CategoryName').disabled = true
         document.getElementById('categorySelect').disabled = true
-        const token = this.getCookie('token'); // supondo que você tem um método para obter o token do cookie
+        const token = this.getCookie('token');
         const data = {
           name: this.categoryName,
           active: 1,
@@ -501,16 +510,16 @@ export default {
         });
         if (response.data.errors) {
 
-          this.msg = '';
           this.msgType = 'danger';
+          this.msg = '';
           for (const [field, messages] of Object.entries(response.data.errors)) {
 
-            this.errorMsg += `${field}: ${messages.join(', ')}\n`;
+            this.msg += `${field}: ${messages.join(', ')}\n`;
           }
           document.getElementById('CategoryName').disabled = false
           document.getElementById('categorySelect').disabled = false
           setTimeout(() => {
-            this.errorMsg = '';
+            this.msg = '';
           }, 5000);
         }
         else {
@@ -548,18 +557,18 @@ export default {
           }
         });
         if (response.data.errors) {
-
+          this.msgType = 'danger';
           this.msg = '';
           for (const [field, messages] of Object.entries(response.data.errors)) {
 
-            this.errorMsg += `${field}: ${messages.join(', ')}\n`;
+            this.msg += `${field}: ${messages.join(', ')}\n`;
           }
           document.getElementById('categorySelect').disabled = false
           inputsCourse.forEach(inputCourses => {
             inputCourses.disabled = false;
           });
           setTimeout(() => {
-            this.errorMsg = '';
+            this.msg = '';
           }, 5000);
         }
         else {
@@ -584,10 +593,10 @@ export default {
       const token = this.getCookie('token');
 
       try {
-        document.getElementById('#cursoFormSelect').disabled = true
+        document.getElementById('cursoFormSelect').disabled = true
         const inputsLessons = document.querySelectorAll('.inputLessons')
-        inputsLessons.forEach(input => {
-          input.disabled = true;
+        inputsLessons.forEach(inputLessons => {
+          inputLessons.disabled = true;
         });
         const formData = new FormData();
         formData.append('course_id', this.selectedCourse);
@@ -602,39 +611,54 @@ export default {
             'Authorization': 'Bearer ' + token
           }
         });
-        console.log(response)
         if (response.data.errors) {
-
+          this.msgType = 'danger';
           this.msg = '';
           for (const [field, messages] of Object.entries(response.data.errors)) {
 
-            this.errorMsg += `${field}: ${messages.join(', ')}\n`;
+            this.msg += `${field}: ${messages.join(', ')}\n`;
           }
+          setTimeout(() => {
+            this.msg = '';
+          }, 5000);
           document.getElementById('cursoFormSelect').disabled = false
           inputsLessons.forEach(input => {
             input.disabled = false;
           });
-          setTimeout(() => {
-            this.errorMsg = '';
-          }, 5000);
         }
         else {
-          window.location.reload(true)
+          // window.location.reload(true)
+          if (response.data.success) {
+            this.nameLessons = ''
+            this.lessonsInformation = ''
+            this.sequenceLessons = ''
+            const fileInput = document.getElementById('lessonsFile');
+            fileInput.type = 'text';
+            fileInput.type = 'file';
+            this.msgType = 'success';
+            this.msg = response.data.success
+
+            setTimeout(() => {
+              this.msg = '';
+              this.msgType = '';
+            }, 5000)
+          };
         }
       } catch (error) {
-        console.error('Erro ao criar curso:', error);
-        // Lógica para lidar com o erro
+        console.error('Erro ao criar aula:', error);
       } finally {
         document.getElementById('cursoFormSelect').disabled = false
         const inputsLessons = document.querySelectorAll('.inputLessons')
-        inputsLessons.forEach(input => {
-          input.disabled = false;
+        inputsLessons.forEach(inputLessons => {
+          inputLessons.disabled = false;
         });
+
       }
     },
     async submitButtonCategoriesEdit() {
       try {
-        // this.disabledCategory = true;
+        document.getElementById('categorySelectEdit').disabled = true
+        document.getElementById('CategoryNameEdit').disabled = true
         const token = this.getCookie('token');
         const data = {
           name: this.categoryNameEdit,
@@ -644,15 +668,16 @@ export default {
           headers: { 'Authorization': 'Bearer ' + token }
         });
         if (response.data.errors) {
-
-          this.errorMsg = '';
+          this.msgType = 'danger'; 
+          this.msg = '';
           for (const [field, messages] of Object.entries(response.data.errors)) {
 
-            this.errorMsg += `${field}: ${messages.join(', ')}\n`;
+            this.msg += `${field}: ${messages.join(', ')}\n`;
           }
-
+          document.getElementById('categorySelectEdit').disabled = false
+          document.getElementById('CategoryNameEdit').disabled = false
           setTimeout(() => {
-            this.errorMsg = '';
+            this.msg = '';
           }, 5000);
         }
         else {
@@ -661,14 +686,19 @@ export default {
       } catch (error) {
         console.error('Erro ao enviar PUT:', error);
       } finally {
-        // this.disabledCategory = false;
+        document.getElementById('categorySelectEdit').disabled = false
+        document.getElementById('CategoryNameEdit').disabled = false
       }
     },
     async submitButtonCoursesEdit() {
       const token = this.getCookie('token');
       try {
-        // this.isCategorySelected = true,
-        // this.isCursoSelected = true;
+        document.getElementById('selectedCourseEdit').disabled = true
+        const inputCourseEdit = document.querySelectorAll('.inputCourseEdit')
+        inputCourseEdit.forEach(inputCourseEdit => {
+          inputCourseEdit.disabled = true;
+        });
+
         const idCourse = this.selectedCourseEdit;
         const data = {
           name: this.nameCourseEdit,
@@ -682,15 +712,19 @@ export default {
           }
         });
         if (response.data.errors) {
-
+          this.msgType = 'danger';
           this.msg = '';
           for (const [field, messages] of Object.entries(response.data.errors)) {
 
-            this.errorMsg += `${field}: ${messages.join(', ')}\n`;
+            this.msg += `${field}: ${messages.join(', ')}\n`;
           }
+          document.getElementById('selectedCourseEdit').disabled = false
+          inputCourseEdit.forEach(inputCourseEdit => {
+            inputCourseEdit.disabled = false;
+          });
 
           setTimeout(() => {
-            this.errorMsg = '';
+            this.msg = '';
           }, 5000);
         }
         else {
@@ -698,17 +732,23 @@ export default {
         }
       } catch (error) {
         console.error('Erro ao criar curso:', error);
-        // Lógica para lidar com o erro
       } finally {
-        this.isCategorySelected = false,
-          this.isCursoSelected = false;
+        document.getElementById('selectedCourseEdit').disabled = false
+        const inputCourseEdit = document.querySelectorAll('.inputCourseEdit')
+        inputCourseEdit.forEach(inputCourseEdit => {
+          inputCourseEdit.disabled = false;
+        });
       }
     },
     async submitButtonLessonsEdit() {
       const token = this.getCookie('token');
       try {
-        // this.isCategorySelected = true,
-        // this.isCursoSelected = true;
+        document.getElementById('lessonFormSelectEdit').disabled = true
+        const inputLessonsEdit = document.querySelectorAll('.inputLessonsEdit')
+        inputLessonsEdit.forEach(inputLessonsEdit => {
+          inputLessonsEdit.disabled = true;
+        });
+
         const idLessons = this.lessonFormSelectEdit;
         const data = {
           name: this.nameLessonsEdit,
@@ -722,15 +762,18 @@ export default {
           }
         });
         if (response.data.errors) {
-
+          this.msgType = 'danger';
           this.msg = '';
           for (const [field, messages] of Object.entries(response.data.errors)) {
 
-            this.errorMsg += `${field}: ${messages.join(', ')}\n`;
+            this.msg += `${field}: ${messages.join(', ')}\n`;
           }
-
+          document.getElementById('lessonFormSelectEdit').disabled = false
+          inputLessonsEdit.forEach(inputLessonsEdit => {
+            inputLessonsEdit.disabled = false;
+          });
           setTimeout(() => {
-            this.errorMsg = '';
+            this.msg = '';
           }, 5000);
         }
         else {
@@ -738,14 +781,16 @@ export default {
         }
       } catch (error) {
         console.error('Erro ao criar curso:', error);
-        // Lógica para lidar com o erro
       } finally {
-        this.isCategorySelected = false,
-          this.isCursoSelected = false;
+        document.getElementById('lessonFormSelectEdit').disabled = true
+        const inputLessonsEdit = document.querySelectorAll('.inputLessonsEdit')
+        inputLessonsEdit.forEach(inputLessonsEdit => {
+          inputLessonsEdit.disabled = false;
+        });
       }
     },
     async buscarCategorias() {
-      const token = this.getCookie('token'); // Nome do cookie que contém o token
+      const token = this.getCookie('token');
       if (!token) {
         console.error('Token não encontrado');
         return;

@@ -67,9 +67,6 @@ export default {
       const parts = value.split(`; ${name}=`);
       if (parts.length === 2) return parts.pop().split(';').shift();
     },
-    deleteTokenCookie() {
-      document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-    },
     getUserData() {
       const token = this.getTokenCookie();
       if (token) {
@@ -84,6 +81,9 @@ export default {
         .catch(error => {
           console.error('Erro ao obter os dados do usuário:', error);
         });
+      }else {
+        this.$router.push({ name: 'Login' });
+        this.deleteTokenCookie()
       }
     },
     getTokenCookie() {

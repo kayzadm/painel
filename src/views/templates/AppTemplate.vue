@@ -30,6 +30,7 @@ export default {
         document.title = 'PHD DO BRASIL';
         
     }
+    
 }
 </script>
 

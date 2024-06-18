@@ -418,7 +418,10 @@ export default {
     filteredLessonsEdit() {
       if (!this.selectedCourseEdit) return [];
       return this.lessonsEdit.filter(lessonEdit => lessonEdit.course_id == this.selectedCourseEdit);
-    }
+    },
+    deleteTokenCookie() {
+      document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+    },
   },
   mounted() {
     this.buscarCursos();
@@ -443,6 +446,7 @@ export default {
     }
   },
   methods: {
+
     getCookie(name) {
       const value = `; ${document.cookie}`;
       const parts = value.split(`; ${name}=`);
@@ -520,10 +524,19 @@ export default {
           document.getElementById('categorySelect').disabled = false
           setTimeout(() => {
             this.msg = '';
-          }, 5000);
+          }, 3000);
         }
         else {
-          window.location.reload(true)
+          if (response.data.success) {
+            this.msgType = 'success';
+            this.msg = response.data.success
+
+            setTimeout(() => {
+              this.msg = '';
+              this.msgType = '';
+              window.location.reload(true)
+            }, 3000)
+          };
         }
       } catch (error) {
         console.error('Erro ao enviar POST:', error);
@@ -569,10 +582,19 @@ export default {
           });
           setTimeout(() => {
             this.msg = '';
-          }, 5000);
+          }, 3000);
         }
         else {
-          window.location.reload(true)
+          if (response.data.success) {
+            this.msgType = 'success';
+            this.msg = response.data.success
+
+            setTimeout(() => {
+              this.msg = '';
+              this.msgType = '';
+              window.location.reload(true)
+            }, 3000)
+          };
         }
       } catch (error) {
         console.error('Erro ao criar curso:', error);
@@ -620,7 +642,7 @@ export default {
           }
           setTimeout(() => {
             this.msg = '';
-          }, 5000);
+          }, 3000);
           document.getElementById('cursoFormSelect').disabled = false
           inputsLessons.forEach(input => {
             input.disabled = false;
@@ -641,7 +663,7 @@ export default {
             setTimeout(() => {
               this.msg = '';
               this.msgType = '';
-            }, 5000)
+            }, 3000)
           };
         }
       } catch (error) {
@@ -668,7 +690,7 @@ export default {
           headers: { 'Authorization': 'Bearer ' + token }
         });
         if (response.data.errors) {
-          this.msgType = 'danger'; 
+          this.msgType = 'danger';
           this.msg = '';
           for (const [field, messages] of Object.entries(response.data.errors)) {
 
@@ -678,10 +700,19 @@ export default {
           document.getElementById('CategoryNameEdit').disabled = false
           setTimeout(() => {
             this.msg = '';
-          }, 5000);
+          }, 3000);
         }
-        else {
-          window.location.reload(true)
+         else {
+          if (response.data.success) {
+            this.msgType = 'success';
+            this.msg = response.data.success
+
+            setTimeout(() => {
+              this.msg = '';
+              this.msgType = '';
+              window.location.reload(true)
+            }, 3000)
+          };
         }
       } catch (error) {
         console.error('Erro ao enviar PUT:', error);
@@ -725,10 +756,19 @@ export default {
 
           setTimeout(() => {
             this.msg = '';
-          }, 5000);
+          }, 3000);
         }
-        else {
-          window.location.reload(true)
+         else {
+          if (response.data.success) {
+            this.msgType = 'success';
+            this.msg = response.data.success
+
+            setTimeout(() => {
+              this.msg = '';
+              this.msgType = '';
+              window.location.reload(true)
+            }, 3000)
+          };
         }
       } catch (error) {
         console.error('Erro ao criar curso:', error);
@@ -774,10 +814,19 @@ export default {
           });
           setTimeout(() => {
             this.msg = '';
-          }, 5000);
+          }, 3000);
         }
-        else {
-          window.location.reload(true)
+         else {
+          if (response.data.success) {
+            this.msgType = 'success';
+            this.msg = response.data.success
+
+            setTimeout(() => {
+              this.msg = '';
+              this.msgType = '';
+              window.location.reload(true)
+            }, 3000)
+          };
         }
       } catch (error) {
         console.error('Erro ao criar curso:', error);

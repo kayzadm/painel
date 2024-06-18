@@ -19,17 +19,6 @@ select {
 option {
     text-transform: lowercase;
 }
-.text-success {
-    border-radius: 5px;
-    background-color: rgba(0, 255, 21, 0.6);
-    padding: 10px;
-    
-}
-.text-danger {
-    background-color: rgb(255, 0, 0, 0.6);
-    border-radius: 5px;
-    padding: 10px;
-}
 
 .response ul {
     list-style: none;

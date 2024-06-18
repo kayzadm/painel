@@ -76,7 +76,7 @@ export default {
 
       $.ajax({
         type: 'POST',
-        url: 'http://192.168.10.80/api/auth',
+        url: `${apiUrl}/auth`,
         data: JSON.stringify(data),
         contentType: 'application/json',
         dataType: 'json',
@@ -136,7 +136,7 @@ export default {
     if (token) {
       $.ajax({
         type: 'GET',
-        url: 'http://192.168.10.80/api/user',
+        url: `${apiUrl}/user`,
         headers: { 'Authorization': 'Bearer ' + token },
         success: (response) => {
           if (response.active == 0) {

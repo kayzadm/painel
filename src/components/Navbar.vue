@@ -5,25 +5,29 @@
       <ul class="navbar-nav mr-3">
         <li>
           <a href="#" data-toggle="sidebar" class="nav-link nav-link-lg collapse-btn">
-            <FeatherIcon icon="menu" size="25"/></a>
+            <FeatherIcon icon="menu" size="25" />
+          </a>
         </li>
       </ul>
     </div>
     <ul class="navbar-nav navbar-right">
       <li class="dropdown">
-        <a href="#" data-toggle="dropdown" class="nav-link dropdown-toggle nav-link-lg nav-link-user" id="userProfile" style="margin-right: 10px;">
-          <FeatherIcon icon="user" size="20"/>
-          <span class="d-sm-none d-lg-inline-block"></span></a>
+        <a href="#" data-toggle="dropdown" class="nav-link dropdown-toggle nav-link-lg nav-link-user" id="userProfile"
+          style="margin-right: 10px;">
+          <FeatherIcon icon="user" size="20" />
+          <span class="d-sm-none d-lg-inline-block"></span>
+        </a>
         <div class="dropdown-menu dropdown-menu-right pullDown" id="dropdownUser" v-if="user">
           <div class="dropdown-title">{{ user.name }}</div>
           <a href="" class="dropdown-item has-icon">
-            <FeatherIcon icon="user" size="20"/> Profile</a>
+            <FeatherIcon icon="user" size="20" /> Profile
+          </a>
           <!-- <a href="" class="dropdown-item has-icon"> <i class="fas fa-cog"></i>
               Settings
             </a> -->
           <div class="dropdown-divider"></div>
           <a class="dropdown-item has-icon text-danger" @click="logout" style="cursor: pointer">
-            <FeatherIcon icon="log-out" size="20"/> logout
+            <FeatherIcon icon="log-out" size="20" /> logout
           </a>
         </div>
       </li>
@@ -62,6 +66,9 @@ export default {
     }
   },
   methods: {
+    deleteTokenCookie() {
+      document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+    },
     getCookie(name) {
       const value = `; ${document.cookie}`;
       const parts = value.split(`; ${name}=`);
@@ -75,15 +82,15 @@ export default {
             'Authorization': 'Bearer ' + token
           }
         })
-        .then(response => {
-          this.user = response.data;
-        })
-        .catch(error => {
-          console.error('Erro ao obter os dados do usuário:', error);
-        });
-      }else {
+          .then(response => {
+            this.user = response.data;
+          })
+          .catch(error => {
+            console.error('Erro ao obter os dados do usuário:', error);
+          });
+      } else {
         this.$router.push({ name: 'Login' });
-        this.deleteTokenCookie()
+        // this.deleteTokenCookie()
       }
     },
     getTokenCookie() {
@@ -108,13 +115,13 @@ export default {
           'Authorization': 'Bearer ' + token
         }
       })
-      .then(response => {
-        this.deleteTokenCookie();
-        this.$router.push({ name: 'Login' });
-      })
-      .catch(error => {
-        console.error('Erro ao fazer logout:', error);
-      });
+        .then(response => {
+          this.deleteTokenCookie();
+          this.$router.push({ name: 'Login' });
+        })
+        .catch(error => {
+          console.error('Erro ao fazer logout:', error);
+        });
     },
   },
   mounted() {
@@ -122,6 +129,5 @@ export default {
   }
 }
 </script>
-  
-<style>
-</style>
+
+<style></style>
